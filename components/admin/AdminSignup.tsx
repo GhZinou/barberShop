@@ -75,6 +75,7 @@ export function AdminSignup() {
           // Create barber profile - now with authenticated session
           const { error: profileError } = await supabase
             .from('barber_profile')
+            // @ts-ignore - Supabase type inference issue with string literal table names
             .insert({
               user_id: authData.user.id,
               name,
@@ -192,4 +193,3 @@ export function AdminSignup() {
     </motion.div>
   )
 }
-

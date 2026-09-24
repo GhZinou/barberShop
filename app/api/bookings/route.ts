@@ -11,11 +11,13 @@ export async function GET() {
     }
 
     // Get barber profile
-    const { data: barberProfile } = await supabase
+    const { data: barberProfiles } = await supabase
       .from('barber_profile')
       .select('id')
       .eq('user_id', user.id)
-      .single()
+      .limit(1)
+
+    const barberProfile = (barberProfiles as Array<{ id: string }> | null)?.[0]
 
     if (!barberProfile) {
       return NextResponse.json({ error: 'Barber profile not found' }, { status: 404 })
@@ -46,4 +48,3 @@ export async function GET() {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
-
