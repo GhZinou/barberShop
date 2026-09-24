@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { format } from "date-fns";
+import { useState } from "react";
+import { format, addMinutes } from "date-fns";
 import { formatBookingTime } from "@/lib/utils/booking";
-import { addMinutes } from "date-fns";
 import { Button } from "@/components/ui/Button";
-import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { useBookingStore } from "@/store/useBookingStore";
 
 interface BookingFormProps {
   date: Date;
@@ -16,109 +15,43 @@ interface BookingFormProps {
 }
 
 export function BookingForm({ date, time, onComplete }: BookingFormProps) {
+  const { selectedService } = useBookingStore();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [slotDuration, setSlotDuration] = useState(30);
-
-  useEffect(() => {
-    async function fetchSlotDuration() {
-      try {
-        const supabase = createClient();
-
-        // Get barber_id from URL params or use first barber
-        const urlParams = new URLSearchParams(window.location.search);
-        const barberId = urlParams.get("barber");
-
-        let barberProfile: { id: string } | null = null;
-        if (barberId) {
-          const { data } = await supabase
-            .from("barber_profile")
-            .select("id")
-            .eq("id", barberId)
-            .single();
-          barberProfile = data as { id: string } | null;
-        } else {
-          // Default to first barber if no barber_id specified
-          const { data } = await supabase
-            .from("barber_profile")
-            .select("id")
-            .limit(1)
-            .single();
-          barberProfile = data as { id: string } | null;
-        }
-
-        if (barberProfile) {
-          const dayOfWeek = date.getDay();
-          // @ts-ignore - Supabase type inference issue with string literal table names
-          const { data: availability } = await supabase
-            .from("availability")
-            .select("slot_duration")
-            // @ts-ignore - Supabase type inference issue
-            .eq("barber_id", barberProfile.id)
-            .eq("day_of_week", dayOfWeek)
-            .eq("is_active", true)
-            .single();
-
-          if (availability) {
-            // @ts-ignore - Supabase type inference issue
-            setSlotDuration(availability.slot_duration);
-          }
-        }
-      } catch (err) {
-        console.error("Error fetching slot duration:", err);
-      }
-    }
-
-    fetchSlotDuration();
-  }, [date]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!selectedService) {
+      setError("No service selected.");
+      return;
+    }
     setLoading(true);
     setError(null);
 
     try {
       const supabase = createClient();
 
-      // Get barber_id from URL params or use first barber
-      const urlParams = new URLSearchParams(window.location.search);
-      const barberId = urlParams.get("barber");
+      // Resolve barber (first)
+      const { data: barber } = await supabase
+        .from("barber_profile")
+        .select("id")
+        .limit(1)
+        .single();
 
-      let barberProfile: { id: string } | null = null;
-      if (barberId) {
-        const { data } = await supabase
-          .from("barber_profile")
-          .select("id")
-          .eq("id", barberId)
-          .single();
-        barberProfile = data as { id: string } | null;
-      } else {
-        // Default to first barber if no barber_id specified
-        const { data } = await supabase
-          .from("barber_profile")
-          .select("id")
-          .limit(1)
-          .single();
-        barberProfile = data as { id: string } | null;
-      }
-
-      if (!barberProfile) {
-        throw new Error("Barber profile not found");
-      }
+      if (!barber) throw new Error("Barber profile not found.");
+      const barberId = (barber as { id: string }).id;
 
       // Get or create client
       let clientId: string;
-
       const {
         data: { user },
       } = await supabase.auth.getUser();
 
       if (user) {
-        // Check if client exists for this user
         const { data: existingClient } = await supabase
           .from("clients")
           .select("id")
@@ -126,12 +59,9 @@ export function BookingForm({ date, time, onComplete }: BookingFormProps) {
           .single();
 
         if (existingClient) {
-          // @ts-ignore - Supabase type inference issue
-          clientId = existingClient.id;
-          // Update client info
+          clientId = (existingClient as { id: string }).id;
           await supabase
             .from("clients")
-            // @ts-ignore - Supabase type inference issue with string literal table names
             .update({
               name,
               email: email || null,
@@ -139,10 +69,8 @@ export function BookingForm({ date, time, onComplete }: BookingFormProps) {
             })
             .eq("id", clientId);
         } else {
-          // Create new client
           const { data: newClient, error: clientError } = await supabase
             .from("clients")
-            // @ts-ignore - Supabase type inference issue with string literal table names
             .insert({
               user_id: user.id,
               name,
@@ -155,15 +83,11 @@ export function BookingForm({ date, time, onComplete }: BookingFormProps) {
           if (clientError || !newClient) {
             throw new Error("Failed to create client profile");
           }
-
-          // @ts-ignore - Supabase type inference issue
-          clientId = newClient.id;
+          clientId = (newClient as { id: string }).id;
         }
       } else {
-        // Create client without user_id (guest booking)
         const { data: newClient, error: clientError } = await supabase
           .from("clients")
-          // @ts-ignore - Supabase type inference issue with string literal table names
           .insert({
             name,
             email: email || null,
@@ -175,45 +99,33 @@ export function BookingForm({ date, time, onComplete }: BookingFormProps) {
         if (clientError || !newClient) {
           throw new Error("Failed to create client profile");
         }
-
-        // @ts-ignore - Supabase type inference issue
-        clientId = newClient.id;
+        clientId = (newClient as { id: string }).id;
       }
 
-      // Calculate end time using slot duration from availability
+      // Compute end_time from the chosen service
       const startDateTime = formatBookingTime(date, time);
-      const endDateTime = addMinutes(startDateTime, slotDuration);
+      const endDateTime = addMinutes(startDateTime, selectedService.duration);
+
       const dateStr = format(date, "yyyy-MM-dd");
       const startTimeStr = format(startDateTime, "HH:mm:ss");
       const endTimeStr = format(endDateTime, "HH:mm:ss");
 
-      // CRITICAL: Check for overlapping bookings before creating
-      // This prevents double bookings even if two people try to book the same slot simultaneously
+      // Final overlap re-check (defensive, in case another booking landed)
       const { data: existingBookings, error: checkError } = await supabase
         .from("bookings")
         .select("id, start_time, end_time")
-        // @ts-ignore - Supabase type inference issue
-        .eq("barber_id", barberProfile.id)
+        .eq("barber_id", barberId)
         .eq("date", dateStr)
         .in("status", ["pending", "confirmed"]);
 
-      if (checkError) {
-        throw new Error("Failed to check availability");
-      }
+      if (checkError) throw new Error("Failed to check availability");
 
-      // Check if the requested time slot overlaps with any existing booking
-      const hasOverlap = (existingBookings || []).some((booking: any) => {
-        const existingStart = new Date(`${dateStr}T${booking.start_time}`);
-        const existingEnd = new Date(`${dateStr}T${booking.end_time}`);
+      const hasOverlap = (existingBookings || []).some((b: any) => {
+        const existingStart = new Date(`${dateStr}T${b.start_time}`);
+        const existingEnd = new Date(`${dateStr}T${b.end_time}`);
         const requestedStart = new Date(`${dateStr}T${startTimeStr}`);
         const requestedEnd = new Date(`${dateStr}T${endTimeStr}`);
-
-        // Check for any overlap
-        return (
-          (requestedStart >= existingStart && requestedStart < existingEnd) ||
-          (requestedEnd > existingStart && requestedEnd <= existingEnd) ||
-          (requestedStart <= existingStart && requestedEnd >= existingEnd)
-        );
+        return requestedStart < existingEnd && requestedEnd > existingStart;
       });
 
       if (hasOverlap) {
@@ -225,11 +137,10 @@ export function BookingForm({ date, time, onComplete }: BookingFormProps) {
       // Create booking
       const { data: booking, error: bookingError } = await supabase
         .from("bookings")
-        // @ts-ignore - Supabase type inference issue with string literal table names
         .insert({
           client_id: clientId,
-          // @ts-ignore - Supabase type inference issue
-          barber_id: barberProfile.id,
+          barber_id: barberId,
+          service_id: selectedService.id,
           date: dateStr,
           start_time: startTimeStr,
           end_time: endTimeStr,
@@ -240,7 +151,6 @@ export function BookingForm({ date, time, onComplete }: BookingFormProps) {
         .single();
 
       if (bookingError || !booking) {
-        // Check if error is due to conflict
         if (
           bookingError?.message?.includes("overlap") ||
           bookingError?.message?.includes("conflict")
@@ -254,14 +164,12 @@ export function BookingForm({ date, time, onComplete }: BookingFormProps) {
 
       const bookingId = (booking as { id: string }).id;
 
-      // Send notification to barber (fire and forget - don't wait for response)
       fetch("/api/bookings/notify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ bookingId }),
       }).catch((err) => {
         console.error("Failed to send notification:", err);
-        // Don't fail the booking if notification fails
       });
 
       onComplete(bookingId);

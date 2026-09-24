@@ -1,6 +1,14 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+// Paths under /admin that should remain accessible without a session.
+// Everything else under /admin requires authentication.
+const PUBLIC_ADMIN_PATHS = [
+  "/admin/login",
+  "/admin/signup",
+  "/admin/setup",
+];
+
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
@@ -31,13 +39,13 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  // Refresh the session to ensure cookies are properly set
+  // IMPORTANT: getUser() verifies the JWT with the Supabase auth server.
+  // Do not replace this with getSession() — getSession() reads cookies
+  // without validating them and must not be trusted for access control.
   const {
-    data: { session },
-    error: sessionError,
-  } = await supabase.auth.getSession();
-
-  const user = session?.user;
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
 
   // Debug logging in development
   if (
@@ -50,29 +58,28 @@ export async function updateSession(request: NextRequest) {
     console.log("[Middleware Debug]", {
       path: request.nextUrl.pathname,
       hasUser: !!user,
-      hasSession: !!session,
       userId: user?.id,
-      sessionError: sessionError?.message,
+      userError: userError?.message,
       cookieCount: supabaseCookies.length,
       cookieNames: supabaseCookies.map((c) => c.name),
     });
   }
 
-  // Protect admin routes - redirect to login if not authenticated
-  // But exclude login, signup, and setup pages to avoid loops
-  if (
-    request.nextUrl.pathname.startsWith("/admin") &&
-    request.nextUrl.pathname !== "/admin/login" &&
-    request.nextUrl.pathname !== "/admin/signup" &&
-    request.nextUrl.pathname !== "/admin/setup" &&
-    !user
-  ) {
+  const pathname = request.nextUrl.pathname;
+
+  // Protect /admin/* except the explicitly public paths.
+  const isAdminPath = pathname.startsWith("/admin");
+  const isPublicAdminPath = PUBLIC_ADMIN_PATHS.some(
+    (p) => pathname === p || pathname.startsWith(p + "/")
+  );
+
+  if (isAdminPath && !isPublicAdminPath && !user) {
     const redirectUrl = new URL("/admin/login", request.url);
     return NextResponse.redirect(redirectUrl);
   }
 
-  // Don't redirect authenticated users away from login/signup in middleware
-  // Let the page components handle this to avoid redirect loops
+  // Don't redirect authenticated users away from login/signup/setup here.
+  // Let the page components decide what to do — this avoids redirect loops.
 
   return supabaseResponse;
 }

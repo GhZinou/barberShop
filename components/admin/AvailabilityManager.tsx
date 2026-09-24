@@ -5,7 +5,6 @@ import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/Button";
 import { motion } from "framer-motion";
 import { Loader2, Save } from "lucide-react";
-import { cn } from "@/lib/utils/cn";
 
 interface AvailabilityManagerProps {
   barberId: string;
@@ -16,8 +15,6 @@ interface Availability {
   day_of_week: number;
   start_time: string;
   end_time: string;
-  slot_duration: number;
-  buffer_time: number;
   is_active: boolean;
 }
 
@@ -40,6 +37,7 @@ export function AvailabilityManager({ barberId }: AvailabilityManagerProps) {
 
   useEffect(() => {
     fetchAvailabilities();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [barberId]);
 
   async function fetchAvailabilities() {
@@ -61,8 +59,6 @@ export function AvailabilityManager({ barberId }: AvailabilityManagerProps) {
           day_of_week: day.value,
           start_time: "09:00",
           end_time: "17:00",
-          slot_duration: 30,
-          buffer_time: 0,
           is_active: false,
         };
       });
@@ -89,8 +85,6 @@ export function AvailabilityManager({ barberId }: AvailabilityManagerProps) {
           .update({
             start_time: availability.start_time,
             end_time: availability.end_time,
-            slot_duration: availability.slot_duration,
-            buffer_time: availability.buffer_time,
             is_active: availability.is_active,
           })
           .eq("id", availability.id);
@@ -106,8 +100,6 @@ export function AvailabilityManager({ barberId }: AvailabilityManagerProps) {
             day_of_week: day,
             start_time: availability.start_time,
             end_time: availability.end_time,
-            slot_duration: availability.slot_duration,
-            buffer_time: availability.buffer_time,
             is_active: availability.is_active,
           })
           .select()
@@ -154,7 +146,8 @@ export function AvailabilityManager({ barberId }: AvailabilityManagerProps) {
       <div>
         <h2 className="text-2xl font-bold mb-4">Manage Availability</h2>
         <p className="text-gray-600 dark:text-gray-400 mb-6">
-          Set your working hours and slot configuration for each day
+          Set your working hours for each day. Booking slots are calculated
+          automatically from the service duration.
         </p>
       </div>
 
@@ -195,7 +188,7 @@ export function AvailabilityManager({ barberId }: AvailabilityManagerProps) {
               </div>
 
               {availability.is_active && (
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium mb-2">
                       Start Time
@@ -225,44 +218,6 @@ export function AvailabilityManager({ barberId }: AvailabilityManagerProps) {
                           day.value,
                           "end_time",
                           e.target.value
-                        )
-                      }
-                      className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Slot Duration (min)
-                    </label>
-                    <select
-                      value={availability.slot_duration}
-                      onChange={(e) =>
-                        updateAvailability(
-                          day.value,
-                          "slot_duration",
-                          parseInt(e.target.value)
-                        )
-                      }
-                      className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900"
-                    >
-                      <option value={30}>30 minutes</option>
-                      <option value={45}>45 minutes</option>
-                      <option value={60}>60 minutes</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Buffer Time (min)
-                    </label>
-                    <input
-                      type="number"
-                      min="0"
-                      value={availability.buffer_time}
-                      onChange={(e) =>
-                        updateAvailability(
-                          day.value,
-                          "buffer_time",
-                          parseInt(e.target.value) || 0
                         )
                       }
                       className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900"

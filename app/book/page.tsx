@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { BookingFlow } from '@/components/booking/BookingFlow'
 
 export default function BookPage() {
@@ -10,9 +11,10 @@ export default function BookPage() {
             Select your preferred date and time
           </p>
         </div>
-        <BookingFlow />
+        <Suspense fallback={null}>
+          <BookingFlow />
+        </Suspense>
       </div>
     </div>
   )
 }
-

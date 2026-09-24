@@ -3,10 +3,7 @@
 import { useState, useEffect } from "react";
 import { useBookingStore } from "@/store/useBookingStore";
 import { createClient } from "@/lib/supabase/client";
-import {
-  generateTimeSlots,
-  type AvailabilityConfig,
-} from "@/lib/utils/booking";
+import { generateTimeSlots } from "@/lib/utils/booking";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
@@ -17,106 +14,101 @@ interface TimeSlotPickerProps {
 }
 
 export function TimeSlotPicker({ date }: TimeSlotPickerProps) {
-  const { selectedTime, setSelectedTime } = useBookingStore();
-  const [slots, setSlots] = useState<
-    Array<{ time: string; available: boolean }>
-  >([]);
+  const { selectedService, selectedTime, setSelectedTime } = useBookingStore();
+  const [slots, setSlots] = useState<Array<{ time: string; available: boolean }>>(
+    []
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    async function fetchAvailability() {
+    async function fetchSlots() {
+      if (!selectedService) {
+        setError("No service selected.");
+        setLoading(false);
+        return;
+      }
       setLoading(true);
       setError(null);
-
       try {
         const supabase = createClient();
 
-        // Get barber_id from URL params or use first barber
-        const urlParams = new URLSearchParams(window.location.search);
-        const barberId = urlParams.get("barber");
+        const { data: barber } = await supabase
+          .from("barber_profile")
+          .select("id")
+          .limit(1)
+          .single();
 
-        let barberProfile: { id: string } | null = null;
-        if (barberId) {
-          const { data } = await supabase
-            .from("barber_profile")
-            .select("id")
-            .eq("id", barberId)
-            .single();
-          barberProfile = data as { id: string } | null;
-        } else {
-          // Default to first barber if no barber_id specified
-          const { data } = await supabase
-            .from("barber_profile")
-            .select("id")
-            .limit(1)
-            .single();
-          barberProfile = data as { id: string } | null;
-        }
-
-        if (!barberProfile) {
-          setError(
-            "Barber profile not found. Please set up your barber profile first."
-          );
+        if (!barber) {
+          setError("Barber profile not found.");
           setLoading(false);
           return;
         }
+        const barberId = (barber as { id: string }).id;
 
-        // Get availability for the day of week (0 = Sunday, 6 = Saturday)
         const dayOfWeek = date.getDay();
-        // @ts-ignore - Supabase type inference issue with string literal table names
         const { data: availability } = await supabase
           .from("availability")
-          .select("*")
-          // @ts-ignore - Supabase type inference issue
-          .eq("barber_id", barberProfile.id)
+          .select("start_time, end_time")
+          .eq("barber_id", barberId)
           .eq("day_of_week", dayOfWeek)
           .eq("is_active", true)
           .single();
 
         if (!availability) {
-          setError(
-            "No availability set for this day. Please contact the barber."
-          );
+          setError("No availability for this day.");
           setLoading(false);
           return;
         }
 
-        // Get existing bookings for this date
         const dateStr = format(date, "yyyy-MM-dd");
-        // @ts-ignore - Supabase type inference issue with string literal table names
-        const { data: bookings } = await supabase
-          .from("bookings")
-          .select("start_time, end_time")
-          // @ts-ignore - Supabase type inference issue
-          .eq("barber_id", barberProfile.id)
-          .eq("date", dateStr)
-          .in("status", ["pending", "confirmed"]);
 
-        const config: AvailabilityConfig = {
-          // @ts-ignore - Supabase type inference issue
-          startTime: availability.start_time,
-          // @ts-ignore - Supabase type inference issue
-          endTime: availability.end_time,
-          // @ts-ignore - Supabase type inference issue
-          slotDuration: availability.slot_duration,
-          // @ts-ignore - Supabase type inference issue
-          bufferTime: availability.buffer_time,
-        };
+        const [bookingsRes, timeOffRes] = await Promise.all([
+          supabase
+            .from("bookings")
+            .select("start_time, end_time")
+            .eq("barber_id", barberId)
+            .eq("date", dateStr)
+            .in("status", ["pending", "confirmed"]),
+          supabase
+            .from("time_off")
+            .select("date, start_time, end_time")
+            .eq("barber_id", barberId)
+            .eq("date", dateStr),
+        ]);
 
-        const timeSlots = generateTimeSlots(date, config, bookings || []);
+        const bookings = (bookingsRes.data || []) as Array<{
+          start_time: string;
+          end_time: string;
+        }>;
+        const timeOff = (timeOffRes.data || []) as Array<{
+          date: string;
+          start_time: string | null;
+          end_time: string | null;
+        }>;
 
-        setSlots(timeSlots);
+        const computed = generateTimeSlots({
+          date,
+          window: {
+            startTime: (availability as any).start_time,
+            endTime: (availability as any).end_time,
+          },
+          serviceDuration: selectedService.duration,
+          bookings,
+          timeOff,
+        });
+
+        setSlots(computed);
       } catch (err) {
-        setError("Failed to load availability. Please try again.");
         console.error(err);
+        setError("Failed to load availability.");
       } finally {
         setLoading(false);
       }
     }
 
-    fetchAvailability();
-  }, [date]);
+    fetchSlots();
+  }, [date, selectedService]);
 
   if (loading) {
     return (
@@ -134,16 +126,6 @@ export function TimeSlotPicker({ date }: TimeSlotPickerProps) {
     );
   }
 
-  if (slots.length === 0) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-gray-600 dark:text-gray-400">
-          No available time slots for this date.
-        </p>
-      </div>
-    );
-  }
-
   const availableSlots = slots.filter((s) => s.available);
 
   if (availableSlots.length === 0) {
@@ -151,8 +133,7 @@ export function TimeSlotPicker({ date }: TimeSlotPickerProps) {
       <div className="text-center py-12">
         <p className="text-xl font-semibold mb-2">Fully Booked</p>
         <p className="text-gray-600 dark:text-gray-400">
-          All time slots for this date are already booked. Please select another
-          date.
+          No time slots fit this service on this date.
         </p>
       </div>
     );

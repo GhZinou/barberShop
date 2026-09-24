@@ -1,7 +1,9 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Clock, Scissors } from 'lucide-react'
+import { Clock, Scissors, CalendarCheck } from 'lucide-react'
+import Link from 'next/link'
+import { Button } from '@/components/ui/Button'
 
 interface Service {
   id: string
@@ -38,28 +40,36 @@ export function ServicesContent({ services }: ServicesContentProps) {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="glass rounded-2xl p-8"
+                className="glass rounded-2xl p-8 flex flex-col"
               >
                 <div className="flex items-center mb-4">
                   <Scissors className="text-amber-500 mr-3" size={32} />
                   <h3 className="text-2xl font-bold">{service.name}</h3>
                 </div>
                 {service.description && (
-                  <p className="text-gray-600 dark:text-gray-400 mb-6">
+                  <p className="text-gray-600 dark:text-gray-400 mb-6 flex-1">
                     {service.description}
                   </p>
                 )}
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center text-amber-500">
                     <Clock size={20} className="mr-2" />
-                    <span className="font-semibold">{service.duration} min</span>
+                    <span className="font-semibold">
+                      {service.duration} min
+                    </span>
                   </div>
-                  {service.price && (
+                  {service.price !== null && (
                     <span className="text-2xl font-bold">
-                      ${service.price.toFixed(2)}
+                      {service.price.toFixed(2)} DA
                     </span>
                   )}
                 </div>
+                <Button asChild className="w-full">
+                  <Link href={`/book?service=${service.id}`}>
+                    <CalendarCheck size={18} className="mr-2" />
+                    Book This Service
+                  </Link>
+                </Button>
               </motion.div>
             ))}
           </div>
@@ -74,4 +84,3 @@ export function ServicesContent({ services }: ServicesContentProps) {
     </div>
   )
 }
-

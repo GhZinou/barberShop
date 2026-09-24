@@ -10,20 +10,18 @@ import {
   User,
   X,
   CheckCircle,
-  AlertCircle,
-  Edit,
   Settings,
   Image as ImageIcon,
+  CalendarOff,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils/cn";
 import { AvailabilityManager } from "./AvailabilityManager";
 import { GalleryManager } from "./GalleryManager";
+import { TimeOffManager } from "./TimeOffManager";
 import { LogoutButton } from "./LogoutButton";
-import { Database } from "@/types/database";
 
 type BookingStatus = "pending" | "confirmed" | "completed" | "cancelled";
-type BookingUpdate = Database["public"]["Tables"]["bookings"]["Update"];
 
 interface AdminDashboardProps {
   barberId: string;
@@ -44,15 +42,22 @@ interface Booking {
   };
 }
 
+type SelectedView =
+  | "today"
+  | "upcoming"
+  | "all"
+  | "availability"
+  | "timeoff"
+  | "gallery";
+
 export function AdminDashboard({ barberId }: AdminDashboardProps) {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedView, setSelectedView] = useState<
-    "today" | "upcoming" | "all" | "availability" | "gallery"
-  >("today");
+  const [selectedView, setSelectedView] = useState<SelectedView>("today");
 
   useEffect(() => {
     fetchBookings();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [barberId, selectedView]);
 
   async function fetchBookings() {
@@ -145,7 +150,14 @@ export function AdminDashboard({ barberId }: AdminDashboardProps) {
         {/* View Tabs */}
         <div className="flex gap-4 mb-8 border-b border-gray-200 dark:border-gray-800 overflow-x-auto">
           {(
-            ["today", "upcoming", "all", "availability", "gallery"] as const
+            [
+              "today",
+              "upcoming",
+              "all",
+              "availability",
+              "timeoff",
+              "gallery",
+            ] as const
           ).map((view) => (
             <button
               key={view}
@@ -166,6 +178,12 @@ export function AdminDashboard({ barberId }: AdminDashboardProps) {
                   Availability
                 </>
               )}
+              {view === "timeoff" && (
+                <>
+                  <CalendarOff size={16} className="inline mr-2" />
+                  Time Off
+                </>
+              )}
               {view === "gallery" && (
                 <>
                   <ImageIcon size={16} className="inline mr-2" />
@@ -179,6 +197,8 @@ export function AdminDashboard({ barberId }: AdminDashboardProps) {
         {/* Content */}
         {selectedView === "availability" ? (
           <AvailabilityManager barberId={barberId} />
+        ) : selectedView === "timeoff" ? (
+          <TimeOffManager barberId={barberId} />
         ) : selectedView === "gallery" ? (
           <GalleryManager barberId={barberId} />
         ) : loading ? (
