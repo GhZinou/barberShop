@@ -16,6 +16,7 @@ export function BookingConfirmation({ bookingId, onReset }: BookingConfirmationP
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       className="text-center py-8"
+      dir="rtl"
     >
       <motion.div
         initial={{ scale: 0 }}
@@ -26,23 +27,22 @@ export function BookingConfirmation({ bookingId, onReset }: BookingConfirmationP
         <CheckCircle className="text-green-500" size={80} />
       </motion.div>
 
-      <h2 className="text-3xl font-bold mb-4">Booking Confirmed!</h2>
+      <h2 className="text-3xl font-bold mb-4">تم تأكيد الحجز!</h2>
       <p className="text-gray-600 dark:text-gray-400 mb-2">
-        Your appointment has been successfully booked.
+        تم حجز موعدك بنجاح.
       </p>
       <p className="text-sm text-gray-500 dark:text-gray-500 mb-8">
-        Booking ID: {bookingId}
+        رقم الحجز: {bookingId}
       </p>
 
       <div className="flex flex-col sm:flex-row gap-4 justify-center">
         <Button onClick={onReset} variant="outline">
-          Book Another Appointment
+          حجز موعد آخر
         </Button>
         <Button asChild>
-          <Link href="/">Back to Home</Link>
+          <Link href="/">العودة للرئيسية</Link>
         </Button>
       </div>
     </motion.div>
   )
 }
-

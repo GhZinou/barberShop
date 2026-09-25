@@ -10,6 +10,7 @@ import { BookingForm } from "./BookingForm";
 import { BookingConfirmation } from "./BookingConfirmation";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
+import { ar } from "date-fns/locale";
 import { createClient } from "@/lib/supabase/client";
 import { Loader2 } from "lucide-react";
 
@@ -109,14 +110,14 @@ export function BookingFlow() {
 
   if (preloading) {
     return (
-      <div className="glass rounded-2xl p-8 text-center py-16">
+      <div className="glass rounded-2xl p-8 text-center py-16" dir="rtl">
         <Loader2 className="animate-spin text-amber-500 mx-auto" size={32} />
       </div>
     );
   }
 
   return (
-    <div className="glass rounded-2xl p-8">
+    <div className="glass rounded-2xl p-8" dir="rtl">
       <AnimatePresence mode="wait">
         {step === "service" && (
           <motion.div
@@ -150,15 +151,15 @@ export function BookingFlow() {
                   }}
                   className="text-amber-500 hover:text-amber-600 mb-4 flex items-center gap-2"
                 >
-                  ← Change service
+                  → تغيير الخدمة
                 </button>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Service: {selectedService.name} · {selectedService.duration}{" "}
-                  min
+                  الخدمة: {selectedService.name} · {selectedService.duration}{" "}
+                  دقيقة
                 </p>
               </div>
             )}
-            <h2 className="text-2xl font-bold mb-6">Select Date</h2>
+            <h2 className="text-2xl font-bold mb-6">اختر التاريخ</h2>
             <DatePicker />
           </motion.div>
         )}
@@ -181,11 +182,11 @@ export function BookingFlow() {
                 }}
                 className="text-amber-500 hover:text-amber-600 mb-4 flex items-center gap-2"
               >
-                ← Change date
+                → تغيير التاريخ
               </button>
-              <h2 className="text-2xl font-bold mb-2">Select Time</h2>
+              <h2 className="text-2xl font-bold mb-2">اختر الوقت</h2>
               <p className="text-gray-600 dark:text-gray-400">
-                {format(selectedDate, "EEEE, MMMM d, yyyy")}
+                {format(selectedDate, "EEEE، d MMMM yyyy", { locale: ar })}
               </p>
             </div>
             <TimeSlotPicker date={selectedDate} />
@@ -209,11 +210,11 @@ export function BookingFlow() {
                 }}
                 className="text-amber-500 hover:text-amber-600 mb-4 flex items-center gap-2"
               >
-                ← Change time
+                → تغيير الوقت
               </button>
-              <h2 className="text-2xl font-bold mb-2">Your Details</h2>
+              <h2 className="text-2xl font-bold mb-2">بياناتك</h2>
               <p className="text-gray-600 dark:text-gray-400">
-                {format(selectedDate, "EEEE, MMMM d, yyyy")} at {selectedTime}
+                {format(selectedDate, "EEEE، d MMMM yyyy", { locale: ar })} في {selectedTime}
               </p>
             </div>
             <BookingForm

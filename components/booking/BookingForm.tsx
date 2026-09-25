@@ -26,7 +26,7 @@ export function BookingForm({ date, time, onComplete }: BookingFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedService) {
-      setError("No service selected.");
+      setError("لم يتم اختيار خدمة.");
       return;
     }
     setLoading(true);
@@ -42,7 +42,7 @@ export function BookingForm({ date, time, onComplete }: BookingFormProps) {
         .limit(1)
         .single();
 
-      if (!barber) throw new Error("Barber profile not found.");
+      if (!barber) throw new Error("لم يتم العثور على ملف الحلاق.");
       const barberId = (barber as { id: string }).id;
 
       // Get or create client
@@ -83,7 +83,7 @@ export function BookingForm({ date, time, onComplete }: BookingFormProps) {
             .single();
 
           if (clientError || !newClient) {
-            throw new Error("Failed to create client profile");
+            throw new Error("فشل في إنشاء ملف العميل");
           }
           clientId = (newClient as { id: string }).id;
         }
@@ -100,7 +100,7 @@ export function BookingForm({ date, time, onComplete }: BookingFormProps) {
           .single();
 
         if (clientError || !newClient) {
-          throw new Error("Failed to create client profile");
+          throw new Error("فشل في إنشاء ملف العميل");
         }
         clientId = (newClient as { id: string }).id;
       }
@@ -121,7 +121,7 @@ export function BookingForm({ date, time, onComplete }: BookingFormProps) {
         .eq("date", dateStr)
         .in("status", ["pending", "confirmed"]);
 
-      if (checkError) throw new Error("Failed to check availability");
+      if (checkError) throw new Error("فشل في التحقق من التوفر");
 
       const hasOverlap = (existingBookings || []).some((b: any) => {
         const existingStart = new Date(`${dateStr}T${b.start_time}`);
@@ -133,7 +133,7 @@ export function BookingForm({ date, time, onComplete }: BookingFormProps) {
 
       if (hasOverlap) {
         throw new Error(
-          "This time slot has just been booked by someone else. Please select another time."
+          "تم حجز هذا الوقت للتو من قبل شخص آخر. يرجى اختيار وقت آخر."
         );
       }
 
@@ -160,10 +160,10 @@ export function BookingForm({ date, time, onComplete }: BookingFormProps) {
           bookingError?.message?.includes("conflict")
         ) {
           throw new Error(
-            "This time slot has just been booked. Please select another time."
+            "تم حجز هذا الوقت للتو. يرجى اختيار وقت آخر."
           );
         }
-        throw new Error("Failed to create booking");
+        throw new Error("فشل في إنشاء الحجز");
       }
 
       const bookingId = (booking as { id: string }).id;
@@ -178,7 +178,7 @@ export function BookingForm({ date, time, onComplete }: BookingFormProps) {
 
       onComplete(bookingId);
     } catch (err: any) {
-      setError(err.message || "Failed to create booking. Please try again.");
+      setError(err.message || "فشل في إنشاء الحجز. يرجى المحاولة مرة أخرى.");
       console.error(err);
     } finally {
       setLoading(false);
@@ -186,10 +186,10 @@ export function BookingForm({ date, time, onComplete }: BookingFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6" dir="rtl">
       <div>
         <label htmlFor="name" className="block text-sm font-medium mb-2">
-          Name <span className="text-red-500">*</span>
+          الاسم <span className="text-red-500">*</span>
         </label>
         <input
           id="name"
@@ -198,13 +198,13 @@ export function BookingForm({ date, time, onComplete }: BookingFormProps) {
           value={name}
           onChange={(e) => setName(e.target.value)}
           className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-          placeholder="Your full name"
+          placeholder="الاسم الكامل"
         />
       </div>
 
       <div>
         <label htmlFor="email" className="block text-sm font-medium mb-2">
-          Email
+          البريد الإلكتروني
         </label>
         <input
           id="email"
@@ -218,7 +218,7 @@ export function BookingForm({ date, time, onComplete }: BookingFormProps) {
 
       <div>
         <label htmlFor="phone" className="block text-sm font-medium mb-2">
-          Phone
+          رقم الهاتف
         </label>
         <input
           id="phone"
@@ -232,7 +232,7 @@ export function BookingForm({ date, time, onComplete }: BookingFormProps) {
 
       <div>
         <label htmlFor="notes" className="block text-sm font-medium mb-2">
-          Special Requests or Notes
+          طلبات خاصة أو ملاحظات
         </label>
         <textarea
           id="notes"
@@ -240,7 +240,7 @@ export function BookingForm({ date, time, onComplete }: BookingFormProps) {
           onChange={(e) => setNotes(e.target.value)}
           rows={4}
           className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-          placeholder="Any special requests or notes for your appointment..."
+          placeholder="أي طلبات خاصة أو ملاحظات لموعدك..."
         />
       </div>
 
@@ -259,10 +259,10 @@ export function BookingForm({ date, time, onComplete }: BookingFormProps) {
         {loading ? (
           <>
             <Loader2 className="mr-2 animate-spin" size={20} />
-            Booking...
+            جاري الحجز...
           </>
         ) : (
-          "Confirm Booking"
+          "تأكيد الحجز"
         )}
       </Button>
     </form>

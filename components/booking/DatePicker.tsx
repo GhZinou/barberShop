@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useBookingStore } from "@/store/useBookingStore";
 import { createClient } from "@/lib/supabase/client";
 import { format, addDays, startOfDay, isBefore, isAfter } from "date-fns";
+import { ar } from "date-fns/locale";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { generateTimeSlots } from "@/lib/utils/booking";
@@ -133,7 +134,7 @@ export function DatePicker() {
   };
 
   return (
-    <div>
+    <div dir="rtl">
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 gap-3">
         {dates.map((date) => {
           const dateStr = format(date, "yyyy-MM-dd");
@@ -159,7 +160,7 @@ export function DatePicker() {
               )}
             >
               <div className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                {format(date, "EEE")}
+                {format(date, "EEE", { locale: ar })}
               </div>
               <div
                 className={cn(
@@ -170,7 +171,7 @@ export function DatePicker() {
                 {format(date, "d")}
               </div>
               <div className="text-xs text-gray-500 dark:text-gray-400">
-                {format(date, "MMM")}
+                {format(date, "MMM", { locale: ar })}
               </div>
               {disabledDays.has(dateStr) && (
                 <span className="absolute top-2 right-2 w-2.5 h-2.5 rounded-full bg-red-500" />
@@ -180,7 +181,7 @@ export function DatePicker() {
         })}
       </div>
       <p className="text-sm text-gray-500 dark:text-gray-400 mt-4 text-center">
-        Red dot means the day is unavailable for this service.
+        النقطة الحمراء تعني أن اليوم غير متاح لهذه الخدمة.
       </p>
     </div>
   );

@@ -19,16 +19,16 @@ interface ServicesContentProps {
 
 export function ServicesContent({ services }: ServicesContentProps) {
   return (
-    <div className="min-h-screen py-20 px-4">
+    <div className="min-h-screen py-20 px-4" dir="rtl">
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
-          <h1 className="text-5xl font-bold mb-4">Our Services</h1>
+          <h1 className="text-5xl font-bold mb-4">خدماتنا</h1>
           <p className="text-xl text-gray-600 dark:text-gray-400">
-            Professional barber services tailored to you
+            خدمات حلاقة احترافية مصممة خصيصًا لك
           </p>
         </motion.div>
 
@@ -43,7 +43,7 @@ export function ServicesContent({ services }: ServicesContentProps) {
                 className="glass rounded-2xl p-8 flex flex-col"
               >
                 <div className="flex items-center mb-4">
-                  <Scissors className="text-amber-500 mr-3" size={32} />
+                  <Scissors className="text-amber-500 ml-3" size={32} />
                   <h3 className="text-2xl font-bold">{service.name}</h3>
                 </div>
                 {service.description && (
@@ -53,21 +53,21 @@ export function ServicesContent({ services }: ServicesContentProps) {
                 )}
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center text-amber-500">
-                    <Clock size={20} className="mr-2" />
+                    <Clock size={20} className="ml-2" />
                     <span className="font-semibold">
-                      {service.duration} min
+                      {service.duration} دقيقة
                     </span>
                   </div>
                   {service.price !== null && (
                     <span className="text-2xl font-bold">
-                      {service.price.toFixed(2)} DA
+                      {service.price.toFixed(2)} د.ج
                     </span>
                   )}
                 </div>
                 <Button asChild className="w-full">
                   <Link href={`/book?service=${service.id}`}>
-                    <CalendarCheck size={18} className="mr-2" />
-                    Book This Service
+                    <CalendarCheck size={18} className="ml-2" />
+                    احجز هذه الخدمة
                   </Link>
                 </Button>
               </motion.div>
@@ -76,7 +76,7 @@ export function ServicesContent({ services }: ServicesContentProps) {
         ) : (
           <div className="text-center py-20">
             <p className="text-gray-600 dark:text-gray-400">
-              Services will be listed here. Add services in the database.
+              سيتم عرض الخدمات هنا. أضف الخدمات في قاعدة البيانات.
             </p>
           </div>
         )}

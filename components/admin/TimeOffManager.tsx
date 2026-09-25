@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { format, parseISO, eachDayOfInterval } from "date-fns";
+import { ar } from "date-fns/locale";
 import { Button } from "@/components/ui/Button";
 import { motion } from "framer-motion";
 import {
@@ -58,7 +59,7 @@ export function TimeOffManager({ barberId }: TimeOffManagerProps) {
       if (error) throw error;
       setRows(data || []);
     } catch (err: any) {
-      setError(err.message || "Failed to load time off");
+      setError(err.message || "فشل في تحميل أيام الإجازة");
     } finally {
       setLoading(false);
     }
@@ -87,7 +88,7 @@ export function TimeOffManager({ barberId }: TimeOffManagerProps) {
       const toInsert = allDates.filter((d) => !existing.has(d));
 
       if (toInsert.length === 0) {
-        setInfo("All selected days are already marked as days off.");
+        setInfo("جميع الأيام المحددة مسجلة بالفعل كأيام إجازة.");
         setSaving(false);
         return;
       }
@@ -108,7 +109,7 @@ export function TimeOffManager({ barberId }: TimeOffManagerProps) {
       if (error) {
         // Unique violation can still happen on a race — treat as skip
         if (error.code === "23505") {
-          setInfo("Some days were already marked and were skipped.");
+          setInfo("بعض الأيام كانت مسجلة بالفعل وتم تخطيها.");
         } else {
           throw error;
         }
@@ -117,17 +118,17 @@ export function TimeOffManager({ barberId }: TimeOffManagerProps) {
       const skipped = allDates.length - toInsert.length;
       if (skipped > 0) {
         setInfo(
-          `Added ${toInsert.length} day(s). Skipped ${skipped} already marked.`
+          `تمت إضافة ${toInsert.length} يوم. تم تخطي ${skipped} مسجل بالفعل.`
         );
       } else {
-        setInfo(`Added ${toInsert.length} day(s).`);
+        setInfo(`تمت إضافة ${toInsert.length} يوم.`);
       }
 
       setStartDate("");
       setEndDate("");
       await fetchTimeOff();
     } catch (err: any) {
-      setError(err.message || "Failed to add time off");
+      setError(err.message || "فشل في إضافة أيام الإجازة");
     } finally {
       setSaving(false);
     }
@@ -161,7 +162,7 @@ export function TimeOffManager({ barberId }: TimeOffManagerProps) {
 
       if (error) {
         if (error.code === "23505") {
-          throw new Error("Another day off already exists on that date.");
+          throw new Error("يوجد يوم إجازة آخر مسجل في هذا التاريخ.");
         }
         throw error;
       }
@@ -169,14 +170,14 @@ export function TimeOffManager({ barberId }: TimeOffManagerProps) {
       cancelEdit();
       await fetchTimeOff();
     } catch (err: any) {
-      setError(err.message || "Failed to update time off");
+      setError(err.message || "فشل في تحديث يوم الإجازة");
     } finally {
       setSaving(false);
     }
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("Remove this day off?")) return;
+    if (!confirm("إزالة يوم الإجازة هذا؟")) return;
 
     setSaving(true);
     setError(null);
@@ -187,7 +188,7 @@ export function TimeOffManager({ barberId }: TimeOffManagerProps) {
       if (error) throw error;
       await fetchTimeOff();
     } catch (err: any) {
-      setError(err.message || "Failed to delete time off");
+      setError(err.message || "فشل في حذف يوم الإجازة");
     } finally {
       setSaving(false);
     }
@@ -195,7 +196,7 @@ export function TimeOffManager({ barberId }: TimeOffManagerProps) {
 
   if (loading) {
     return (
-      <div className="text-center py-12">
+      <div className="text-center py-12" dir="rtl">
         <Loader2 className="animate-spin text-amber-500 mx-auto" size={32} />
       </div>
     );
@@ -205,11 +206,11 @@ export function TimeOffManager({ barberId }: TimeOffManagerProps) {
   const past = rows.filter((r) => r.date < today);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir="rtl">
       <div>
-        <h2 className="text-2xl font-bold mb-4">Manage Time Off</h2>
+        <h2 className="text-2xl font-bold mb-4">إدارة أيام الإجازة</h2>
         <p className="text-gray-600 dark:text-gray-400 mb-6">
-          Mark full days you are unavailable. Pick a single day or a range.
+          حدد الأيام الكاملة التي تكون فيها غير متاح. اختر يومًا واحدًا أو نطاقًا.
         </p>
       </div>
 
@@ -218,7 +219,7 @@ export function TimeOffManager({ barberId }: TimeOffManagerProps) {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:items-end">
           <div>
             <label className="block text-sm font-medium mb-2">
-              Start date
+              تاريخ البدء
             </label>
             <input
               type="date"
@@ -235,7 +236,7 @@ export function TimeOffManager({ barberId }: TimeOffManagerProps) {
           </div>
           <div>
             <label className="block text-sm font-medium mb-2">
-              End date <span className="text-gray-400">(optional)</span>
+              تاريخ الانتهاء <span className="text-gray-400">(اختياري)</span>
             </label>
             <input
               type="date"
@@ -246,8 +247,8 @@ export function TimeOffManager({ barberId }: TimeOffManagerProps) {
             />
           </div>
           <Button type="submit" disabled={saving || !startDate}>
-            <Plus size={16} className="mr-2" />
-            Add Day Off
+            <Plus size={16} className="ml-2" />
+            إضافة يوم إجازة
           </Button>
         </div>
       </form>
@@ -266,12 +267,12 @@ export function TimeOffManager({ barberId }: TimeOffManagerProps) {
 
       {/* Upcoming */}
       <div>
-        <h3 className="text-lg font-semibold mb-3">Upcoming</h3>
+        <h3 className="text-lg font-semibold mb-3">القادمة</h3>
         {upcoming.length === 0 ? (
           <div className="text-center py-8 glass rounded-xl">
             <CalendarOff className="mx-auto mb-3 text-gray-400" size={40} />
             <p className="text-gray-600 dark:text-gray-400">
-              No upcoming days off
+              لا توجد أيام إجازة قادمة
             </p>
           </div>
         ) : (
@@ -299,7 +300,7 @@ export function TimeOffManager({ barberId }: TimeOffManagerProps) {
       {/* Past */}
       {past.length > 0 && (
         <div>
-          <h3 className="text-lg font-semibold mb-3 text-gray-500">Past</h3>
+          <h3 className="text-lg font-semibold mb-3 text-gray-500">السابقة</h3>
           <div className="space-y-3 opacity-70">
             {past.map((row, index) => (
               <TimeOffRowItem
@@ -370,7 +371,7 @@ function TimeOffRowItem({
         />
       ) : (
         <div className="text-base font-medium">
-          {format(parseISO(row.date), "EEEE, MMMM d, yyyy")}
+          {format(parseISO(row.date), "EEEE، d MMMM yyyy", { locale: ar })}
         </div>
       )}
 
@@ -382,8 +383,8 @@ function TimeOffRowItem({
               onClick={() => onSaveEdit(row.id)}
               disabled={saving}
             >
-              <Save size={16} className="mr-1" />
-              Save
+              <Save size={16} className="ml-1" />
+              حفظ
             </Button>
             <Button
               size="sm"
@@ -391,8 +392,8 @@ function TimeOffRowItem({
               onClick={onCancelEdit}
               disabled={saving}
             >
-              <X size={16} className="mr-1" />
-              Cancel
+              <X size={16} className="ml-1" />
+              إلغاء
             </Button>
           </>
         ) : (
@@ -403,8 +404,8 @@ function TimeOffRowItem({
               onClick={() => onStartEdit(row)}
               disabled={saving}
             >
-              <Edit2 size={16} className="mr-1" />
-              Edit
+              <Edit2 size={16} className="ml-1" />
+              تعديل
             </Button>
             <Button
               size="sm"
@@ -413,8 +414,8 @@ function TimeOffRowItem({
               disabled={saving}
               className="border-red-500 text-red-500 hover:bg-red-500/10"
             >
-              <Trash2 size={16} className="mr-1" />
-              Delete
+              <Trash2 size={16} className="ml-1" />
+              حذف
             </Button>
           </>
         )}

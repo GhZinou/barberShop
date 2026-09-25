@@ -169,14 +169,14 @@ export function AdminLogin({ message }: AdminLoginProps) {
         err.message?.includes("Invalid")
       ) {
         setError(
-          "Invalid email or password. Please check your credentials or sign up if you don't have an account."
+          "البريد الإلكتروني أو كلمة المرور غير صحيحة. يرجى التحقق من بياناتك أو إنشاء حساب إذا لم يكن لديك واحد."
         );
       } else if (err.message?.includes("Email not confirmed")) {
         setError(
-          "Please check your email and confirm your account before signing in."
+          "يرجى التحقق من بريدك الإلكتروني وتأكيد حسابك قبل تسجيل الدخول."
         );
       } else {
-        setError(err.message || "Failed to sign in");
+        setError(err.message || "فشل في تسجيل الدخول");
       }
     } finally {
       setLoading(false);
@@ -198,7 +198,7 @@ export function AdminLogin({ message }: AdminLoginProps) {
 
       if (signInError) throw signInError;
     } catch (err: any) {
-      setError(err.message || "Failed to sign in with Google");
+      setError(err.message || "فشل في تسجيل الدخول باستخدام Google");
       setLoading(false);
     }
   };
@@ -208,10 +208,11 @@ export function AdminLogin({ message }: AdminLoginProps) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="glass rounded-2xl p-8"
+      dir="rtl"
     >
-      <h1 className="text-3xl font-bold mb-2 text-center">Admin Login</h1>
+      <h1 className="text-3xl font-bold mb-2 text-center">تسجيل دخول المسؤول</h1>
       <p className="text-gray-600 dark:text-gray-400 text-center mb-8">
-        Sign in to manage your bookings
+        سجّل الدخول لإدارة حجوزاتك
       </p>
 
       {successMessage && (
@@ -223,7 +224,7 @@ export function AdminLogin({ message }: AdminLoginProps) {
       <form onSubmit={handleEmailLogin} className="space-y-4">
         <div>
           <label htmlFor="email" className="block text-sm font-medium mb-2">
-            Email
+            البريد الإلكتروني
           </label>
           <input
             id="email"
@@ -233,12 +234,13 @@ export function AdminLogin({ message }: AdminLoginProps) {
             onChange={(e) => setEmail(e.target.value)}
             className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
             placeholder="your.email@example.com"
+            dir="ltr"
           />
         </div>
 
         <div>
           <label htmlFor="password" className="block text-sm font-medium mb-2">
-            Password
+            كلمة المرور
           </label>
           <input
             id="password"
@@ -248,6 +250,7 @@ export function AdminLogin({ message }: AdminLoginProps) {
             onChange={(e) => setPassword(e.target.value)}
             className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
             placeholder="••••••••"
+            dir="ltr"
           />
         </div>
 
@@ -260,11 +263,11 @@ export function AdminLogin({ message }: AdminLoginProps) {
         <Button type="submit" disabled={loading} className="w-full" size="lg">
           {loading ? (
             <>
-              <Loader2 className="mr-2 animate-spin" size={20} />
-              Signing in...
+              <Loader2 className="ml-2 animate-spin" size={20} />
+              جاري تسجيل الدخول...
             </>
           ) : (
-            "Sign In"
+            "تسجيل الدخول"
           )}
         </Button>
       </form>
@@ -275,7 +278,7 @@ export function AdminLogin({ message }: AdminLoginProps) {
         </div>
         <div className="relative flex justify-center text-sm">
           <span className="px-2 bg-white dark:bg-gray-950 text-gray-500">
-            Or
+            أو
           </span>
         </div>
       </div>
@@ -287,13 +290,13 @@ export function AdminLogin({ message }: AdminLoginProps) {
         className="w-full"
         size="lg"
       >
-        Sign in with Google
+        تسجيل الدخول باستخدام Google
       </Button>
 
       <p className="text-sm text-gray-500 dark:text-gray-500 text-center mt-6">
-        Don&apos;t have an account?{" "}
+        ليس لديك حساب؟{" "}
         <a href="/admin/signup" className="text-amber-500 hover:text-amber-600">
-          Sign up
+          إنشاء حساب
         </a>
       </p>
     </motion.div>

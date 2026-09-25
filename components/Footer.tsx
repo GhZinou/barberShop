@@ -2,54 +2,53 @@ import Link from 'next/link'
 
 export function Footer() {
   return (
-    <footer className="border-t border-gray-200 dark:border-gray-800 mt-20">
+    <footer className="border-t border-gray-200 dark:border-gray-800 mt-20" dir="rtl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <h3 className="text-2xl font-bold mb-4">
-              Barber<span className="text-amber-500">Shop</span>
+              AD <span className="text-amber-500">Barber Shop</span>
             </h3>
             <p className="text-gray-600 dark:text-gray-400">
-              Premium barber services with online booking
+              خدمات حلاقة متميزة مع الحجز عبر الإنترنت
             </p>
           </div>
           <div>
-            <h4 className="font-semibold mb-4">Quick Links</h4>
+            <h4 className="font-semibold mb-4">روابط سريعة</h4>
             <ul className="space-y-2">
               <li>
                 <Link href="/" className="text-gray-600 dark:text-gray-400 hover:text-amber-500">
-                  Home
+                  الرئيسية
                 </Link>
               </li>
-              <li>
+              {/* <li> // ← تم تعليق معرض الصور
                 <Link href="/gallery" className="text-gray-600 dark:text-gray-400 hover:text-amber-500">
-                  Gallery
+                  معرض الصور
                 </Link>
-              </li>
+              </li> */}
               <li>
                 <Link href="/services" className="text-gray-600 dark:text-gray-400 hover:text-amber-500">
-                  Services
+                  الخدمات
                 </Link>
               </li>
               <li>
                 <Link href="/book" className="text-gray-600 dark:text-gray-400 hover:text-amber-500">
-                  Book Now
+                  احجز الآن
                 </Link>
               </li>
             </ul>
           </div>
           <div>
-            <h4 className="font-semibold mb-4">Contact</h4>
+            <h4 className="font-semibold mb-4">اتصل بنا</h4>
             <p className="text-gray-600 dark:text-gray-400">
-              Book your appointment online or contact us for more information.
+              احجز موعدك عبر الإنترنت أو تواصل معنا للحصول على مزيد من المعلومات.
             </p>
           </div>
         </div>
         <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-800 text-center text-gray-600 dark:text-gray-400">
-          <p>&copy; {new Date().getFullYear()} BarberShop. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} AD Barber Shop. جميع الحقوق محفوظة.</p>
         </div>
       </div>
     </footer>
   )
 }
-

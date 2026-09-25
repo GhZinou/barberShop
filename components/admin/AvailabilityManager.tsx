@@ -19,13 +19,13 @@ interface Availability {
 }
 
 const DAYS = [
-  { value: 0, label: "Sunday" },
-  { value: 1, label: "Monday" },
-  { value: 2, label: "Tuesday" },
-  { value: 3, label: "Wednesday" },
-  { value: 4, label: "Thursday" },
-  { value: 5, label: "Friday" },
-  { value: 6, label: "Saturday" },
+  { value: 0, label: "الأحد" },
+  { value: 1, label: "الاثنين" },
+  { value: 2, label: "الثلاثاء" },
+  { value: 3, label: "الأربعاء" },
+  { value: 4, label: "الخميس" },
+  { value: 5, label: "الجمعة" },
+  { value: 6, label: "السبت" },
 ];
 
 export function AvailabilityManager({ barberId }: AvailabilityManagerProps) {
@@ -116,7 +116,7 @@ export function AvailabilityManager({ barberId }: AvailabilityManagerProps) {
       }
     } catch (error) {
       console.error("Error saving availability:", error);
-      alert("Failed to save availability");
+      alert("فشل في حفظ أوقات العمل");
     } finally {
       setSaving(false);
     }
@@ -135,19 +135,18 @@ export function AvailabilityManager({ barberId }: AvailabilityManagerProps) {
 
   if (loading) {
     return (
-      <div className="text-center py-12">
+      <div className="text-center py-12" dir="rtl">
         <Loader2 className="animate-spin text-amber-500 mx-auto" size={32} />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir="rtl">
       <div>
-        <h2 className="text-2xl font-bold mb-4">Manage Availability</h2>
+        <h2 className="text-2xl font-bold mb-4">إدارة أوقات العمل</h2>
         <p className="text-gray-600 dark:text-gray-400 mb-6">
-          Set your working hours for each day. Booking slots are calculated
-          automatically from the service duration.
+          حدد ساعات عملك لكل يوم. يتم حساب فترات الحجز تلقائيًا من مدة الخدمة.
         </p>
       </div>
 
@@ -182,8 +181,8 @@ export function AvailabilityManager({ barberId }: AvailabilityManagerProps) {
                   onClick={() => saveAvailability(day.value)}
                   disabled={saving}
                 >
-                  <Save size={16} className="mr-2" />
-                  Save
+                  <Save size={16} className="ml-2" />
+                  حفظ
                 </Button>
               </div>
 
@@ -191,7 +190,7 @@ export function AvailabilityManager({ barberId }: AvailabilityManagerProps) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium mb-2">
-                      Start Time
+                      وقت البدء
                     </label>
                     <input
                       type="time"
@@ -208,7 +207,7 @@ export function AvailabilityManager({ barberId }: AvailabilityManagerProps) {
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-2">
-                      End Time
+                      وقت الانتهاء
                     </label>
                     <input
                       type="time"

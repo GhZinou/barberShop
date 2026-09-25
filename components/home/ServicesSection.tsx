@@ -19,7 +19,7 @@ export function ServicesSection({ services }: ServicesSectionProps) {
   if (!services || services.length === 0) return null
 
   return (
-    <section className="py-20 px-4 bg-gray-50 dark:bg-gray-900">
+    <section className="py-20 px-4 bg-gray-50 dark:bg-gray-900" dir="rtl">
       <div className="max-w-7xl mx-auto">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
@@ -27,7 +27,7 @@ export function ServicesSection({ services }: ServicesSectionProps) {
           viewport={{ once: true }}
           className="text-4xl font-bold text-center mb-12"
         >
-          Our Services
+          خدماتنا
         </motion.h2>
         <div className="grid md:grid-cols-3 gap-6">
           {services.slice(0, 3).map((service, index) => (
@@ -46,18 +46,17 @@ export function ServicesSection({ services }: ServicesSectionProps) {
                 </p>
               )}
               <p className="text-amber-500 font-semibold">
-                {service.duration} minutes
+                {service.duration} دقيقة
               </p>
             </motion.div>
           ))}
         </div>
         <div className="text-center mt-8">
           <Button asChild variant="outline">
-            <Link href="/services">View All Services</Link>
+            <Link href="/services">عرض جميع الخدمات</Link>
           </Button>
         </div>
       </div>
     </section>
   )
 }
-

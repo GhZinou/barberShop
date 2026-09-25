@@ -20,23 +20,23 @@ export function Navbar() {
   }, [])
 
   const navItems = [
-    { href: '/', label: 'Home' },
-    { href: '/gallery', label: 'Gallery' },
-    { href: '/services', label: 'Services' },
-    { href: '/book', label: 'Book Now' },
-    { href: '/admin', label: 'Admin' },
+    { href: '/', label: 'الرئيسية' },
+    // { href: '/gallery', label: 'معرض الصور' }, // ← تم تعليق معرض الصور
+    { href: '/services', label: 'الخدمات' },
+    { href: '/book', label: 'احجز الآن' },
+    { href: '/admin', label: 'لوحة التحكم' },
   ]
 
   return (
-    <nav className="sticky top-0 z-50 glass border-b border-white/10">
+    <nav className="sticky top-0 z-50 glass border-b border-white/10" dir="rtl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <Link href="/" className="text-2xl font-bold">
-            Barber<span className="text-amber-500">Shop</span>
+            AD <span className="text-amber-500">Barber Shop</span>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-8 space-x-reverse">
             {navItems.map((item) => (
               <Link
                 key={item.href}
@@ -52,25 +52,25 @@ export function Navbar() {
             <button
               onClick={toggleTheme}
               className="p-2 rounded-lg hover:bg-white/10 transition-colors"
-              aria-label="Toggle theme"
+              aria-label="تبديل المظهر"
             >
               {mounted ? (isDark ? <Sun size={20} /> : <Moon size={20} />) : <Moon size={20} />}
             </button>
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="md:hidden flex items-center space-x-4">
+          <div className="md:hidden flex items-center space-x-4 space-x-reverse">
             <button
               onClick={toggleTheme}
               className="p-2 rounded-lg hover:bg-white/10 transition-colors"
-              aria-label="Toggle theme"
+              aria-label="تبديل المظهر"
             >
               {mounted ? (isDark ? <Sun size={20} /> : <Moon size={20} />) : <Moon size={20} />}
             </button>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2 rounded-lg hover:bg-white/10 transition-colors"
-              aria-label="Toggle menu"
+              aria-label="تبديل القائمة"
             >
               {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -108,4 +108,3 @@ export function Navbar() {
     </nav>
   )
 }
-

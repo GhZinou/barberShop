@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { HeroSection } from "@/components/home/HeroSection";
-import { FeaturesSection } from "@/components/home/FeaturesSection";
+// import { FeaturesSection } from "@/components/home/FeaturesSection"; // ← تم تعليق FeaturesSection
 import { ServicesSection } from "@/components/home/ServicesSection";
 import { CTASection } from "@/components/home/CTASection";
 
@@ -53,9 +53,9 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const services = (servicesData as Service[] | null) ?? null;
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen" dir="rtl">
       <HeroSection bio={barberProfile?.bio ?? null} />
-      <FeaturesSection />
+      {/* <FeaturesSection /> */} {/* ← تم تعليق FeaturesSection */}
       {services && services.length > 0 && (
         <ServicesSection services={services} />
       )}

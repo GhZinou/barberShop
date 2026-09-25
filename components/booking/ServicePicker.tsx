@@ -34,7 +34,7 @@ export function ServicePicker() {
         if (error) throw error;
         setServices(data || []);
       } catch (err: any) {
-        setError(err.message || "Failed to load services");
+        setError(err.message || "فشل في تحميل الخدمات");
       } finally {
         setLoading(false);
       }
@@ -44,7 +44,7 @@ export function ServicePicker() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
+      <div className="flex items-center justify-center py-12" dir="rtl">
         <Loader2 className="animate-spin text-amber-500" size={32} />
       </div>
     );
@@ -52,7 +52,7 @@ export function ServicePicker() {
 
   if (error) {
     return (
-      <div className="text-center py-12">
+      <div className="text-center py-12" dir="rtl">
         <p className="text-red-500">{error}</p>
       </div>
     );
@@ -60,17 +60,17 @@ export function ServicePicker() {
 
   if (services.length === 0) {
     return (
-      <div className="text-center py-12">
+      <div className="text-center py-12" dir="rtl">
         <p className="text-gray-600 dark:text-gray-400">
-          No services available yet.
+          لا توجد خدمات متاحة حالياً.
         </p>
       </div>
     );
   }
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold mb-6">Choose a Service</h2>
+    <div dir="rtl">
+      <h2 className="text-2xl font-bold mb-6">اختر الخدمة</h2>
       <div className="grid md:grid-cols-2 gap-4">
         {services.map((service) => {
           const isSelected = selectedService?.id === service.id;
@@ -95,7 +95,7 @@ export function ServicePicker() {
               )}
             >
               <div className="flex items-center mb-3">
-                <Scissors className="text-amber-500 mr-3" size={24} />
+                <Scissors className="text-amber-500 ml-3" size={24} />
                 <h3 className="text-xl font-bold">{service.name}</h3>
               </div>
               {service.description && (
@@ -105,14 +105,14 @@ export function ServicePicker() {
               )}
               <div className="flex items-center justify-between">
                 <div className="flex items-center text-amber-500">
-                  <Clock size={18} className="mr-2" />
+                  <Clock size={18} className="ml-2" />
                   <span className="font-semibold">
-                    {service.duration} min
+                    {service.duration} دقيقة
                   </span>
                 </div>
                 {service.price !== null && (
                   <span className="text-lg font-bold">
-                    {service.price.toFixed(2)} DA
+                    {service.price.toFixed(2)} د.ج
                   </span>
                 )}
               </div>

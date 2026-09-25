@@ -58,7 +58,7 @@ export function GalleryManager({ barberId }: GalleryManagerProps) {
 
       setImages(imagesWithUrls);
     } catch (err: any) {
-      setError(err.message || "Failed to load images");
+      setError(err.message || "فشل في تحميل الصور");
     } finally {
       setLoading(false);
     }
@@ -77,13 +77,13 @@ export function GalleryManager({ barberId }: GalleryManagerProps) {
       for (const file of Array.from(files)) {
         // Validate file type
         if (!file.type.startsWith("image/")) {
-          setError(`${file.name} is not an image file`);
+          setError(`${file.name} ليس ملف صورة`);
           continue;
         }
 
         // Validate file size (5MB max)
         if (file.size > 5 * 1024 * 1024) {
-          setError(`${file.name} is too large. Maximum size is 5MB`);
+          setError(`${file.name} كبير جدًا. الحد الأقصى 5 ميجابايت`);
           continue;
         }
 
@@ -98,7 +98,7 @@ export function GalleryManager({ barberId }: GalleryManagerProps) {
           data: { user },
         } = await supabase.auth.getUser();
         if (!user) {
-          setError("You must be logged in to upload images");
+          setError("يجب تسجيل الدخول لتحميل الصور");
           continue;
         }
 
@@ -116,7 +116,7 @@ export function GalleryManager({ barberId }: GalleryManagerProps) {
         if (uploadError) {
           console.error("Upload error details:", uploadError);
           setError(
-            `Failed to upload ${file.name}: ${uploadError.message}. Make sure storage policies are set up correctly.`
+            `فشل في تحميل ${file.name}: ${uploadError.message}. تأكد من إعداد سياسات التخزين بشكل صحيح.`
           );
           continue;
         }
@@ -127,14 +127,14 @@ export function GalleryManager({ barberId }: GalleryManagerProps) {
       // Clear input
       e.target.value = "";
     } catch (err: any) {
-      setError(err.message || "Failed to upload images");
+      setError(err.message || "فشل في تحميل الصور");
     } finally {
       setUploading(false);
     }
   }
 
   async function handleDelete(imageName: string, fullPath?: string) {
-    if (!confirm("Are you sure you want to delete this image?")) return;
+    if (!confirm("هل أنت متأكد من حذف هذه الصورة؟")) return;
 
     try {
       const supabase = createClient();
@@ -148,31 +148,31 @@ export function GalleryManager({ barberId }: GalleryManagerProps) {
 
       await fetchImages();
     } catch (err: any) {
-      setError(err.message || "Failed to delete image");
+      setError(err.message || "فشل في حذف الصورة");
     }
   }
 
   if (loading) {
     return (
-      <div className="text-center py-12">
+      <div className="text-center py-12" dir="rtl">
         <Loader2 className="animate-spin text-amber-500 mx-auto" size={32} />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir="rtl">
       <div>
-        <h2 className="text-2xl font-bold mb-4">Gallery Management</h2>
+        <h2 className="text-2xl font-bold mb-4">إدارة معرض الصور</h2>
         <p className="text-gray-600 dark:text-gray-400 mb-6">
-          Upload and manage images for your gallery
+          قم بتحميل وإدارة صور معرضك
         </p>
       </div>
 
       {/* Upload Section */}
       <div className="glass rounded-xl p-6">
         <label className="block mb-4">
-          <span className="block text-sm font-medium mb-2">Upload Images</span>
+          <span className="block text-sm font-medium mb-2">تحميل الصور</span>
           <div className="flex items-center gap-4">
             <input
               type="file"
@@ -191,10 +191,10 @@ export function GalleryManager({ barberId }: GalleryManagerProps) {
               )}
             >
               <Upload size={20} />
-              {uploading ? "Uploading..." : "Choose Images"}
+              {uploading ? "جاري التحميل..." : "اختر الصور"}
             </label>
             <span className="text-sm text-gray-500 dark:text-gray-400">
-              Max 5MB per image. Supports JPG, PNG, GIF, WebP
+              الحد الأقصى 5 ميجابايت لكل صورة. يدعم JPG، PNG، GIF، WebP
             </span>
           </div>
         </label>
@@ -211,7 +211,7 @@ export function GalleryManager({ barberId }: GalleryManagerProps) {
         <div className="text-center py-12 glass rounded-xl">
           <ImageIcon className="mx-auto mb-4 text-gray-400" size={48} />
           <p className="text-gray-600 dark:text-gray-400">
-            No images uploaded yet. Upload your first image to get started!
+            لم يتم تحميل أي صور بعد. قم بتحميل صورتك الأولى للبدء!
           </p>
         </div>
       ) : (
@@ -226,7 +226,7 @@ export function GalleryManager({ barberId }: GalleryManagerProps) {
             >
               <Image
                 src={image.url}
-                alt={`Gallery image ${index + 1}`}
+                alt={`صورة المعرض ${index + 1}`}
                 fill
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -235,8 +235,8 @@ export function GalleryManager({ barberId }: GalleryManagerProps) {
                 onClick={() =>
                   handleDelete(image.name, (image as any).fullPath)
                 }
-                className="absolute top-2 right-2 p-2 bg-red-500/80 hover:bg-red-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                aria-label="Delete image"
+                className="absolute top-2 left-2 p-2 bg-red-500/80 hover:bg-red-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                aria-label="حذف الصورة"
               >
                 <X size={16} className="text-white" />
               </button>

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { format, parseISO } from "date-fns";
+import { ar } from "date-fns/locale";
 import { motion } from "framer-motion";
 import {
   Calendar,
@@ -11,13 +12,13 @@ import {
   X,
   CheckCircle,
   Settings,
-  Image as ImageIcon,
+  // Image as ImageIcon, // ← تم تعليق أيقونة معرض الصور
   CalendarOff,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils/cn";
 import { AvailabilityManager } from "./AvailabilityManager";
-import { GalleryManager } from "./GalleryManager";
+// import { GalleryManager } from "./GalleryManager"; // ← تم تعليق معرض الصور
 import { TimeOffManager } from "./TimeOffManager";
 import { LogoutButton } from "./LogoutButton";
 
@@ -48,7 +49,14 @@ type SelectedView =
   | "all"
   | "availability"
   | "timeoff"
-  | "gallery";
+  // | "gallery"; // ← تم تعليق معرض الصور
+
+const statusLabels: Record<BookingStatus, string> = {
+  pending: "قيد الانتظار",
+  confirmed: "مؤكد",
+  completed: "مكتمل",
+  cancelled: "ملغي",
+};
 
 export function AdminDashboard({ barberId }: AdminDashboardProps) {
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -115,7 +123,7 @@ export function AdminDashboard({ barberId }: AdminDashboardProps) {
       fetchBookings();
     } catch (error) {
       console.error("Error updating booking:", error);
-      alert("Failed to update booking status");
+      alert("فشل في تحديث حالة الحجز");
     }
   }
 
@@ -135,13 +143,13 @@ export function AdminDashboard({ barberId }: AdminDashboardProps) {
   };
 
   return (
-    <div className="min-h-screen py-8 px-4">
+    <div className="min-h-screen py-8 px-4" dir="rtl">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold mb-2">Admin Dashboard</h1>
+            <h1 className="text-4xl font-bold mb-2">لوحة التحكم</h1>
             <p className="text-gray-600 dark:text-gray-400">
-              Manage your bookings and appointments
+              إدارة الحجوزات والمواعيد
             </p>
           </div>
           <LogoutButton />
@@ -156,40 +164,40 @@ export function AdminDashboard({ barberId }: AdminDashboardProps) {
               "all",
               "availability",
               "timeoff",
-              "gallery",
+              // "gallery", // ← تم تعليق معرض الصور
             ] as const
           ).map((view) => (
             <button
               key={view}
               onClick={() => setSelectedView(view)}
               className={cn(
-                "px-6 py-3 font-medium border-b-2 transition-colors capitalize whitespace-nowrap",
+                "px-6 py-3 font-medium border-b-2 transition-colors whitespace-nowrap",
                 selectedView === view
                   ? "border-amber-500 text-amber-500"
                   : "border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
               )}
             >
-              {view === "today" && `Today (${todayBookings.length})`}
-              {view === "upcoming" && `Upcoming (${upcomingBookings.length})`}
-              {view === "all" && `All (${bookings.length})`}
+              {view === "today" && `اليوم (${todayBookings.length})`}
+              {view === "upcoming" && `القادمة (${upcomingBookings.length})`}
+              {view === "all" && `الكل (${bookings.length})`}
               {view === "availability" && (
                 <>
-                  <Settings size={16} className="inline mr-2" />
-                  Availability
+                  <Settings size={16} className="inline ml-2" />
+                  أوقات العمل
                 </>
               )}
               {view === "timeoff" && (
                 <>
-                  <CalendarOff size={16} className="inline mr-2" />
-                  Time Off
+                  <CalendarOff size={16} className="inline ml-2" />
+                  أيام الإجازة
                 </>
               )}
-              {view === "gallery" && (
+              {/* {view === "gallery" && ( // ← تم تعليق معرض الصور
                 <>
-                  <ImageIcon size={16} className="inline mr-2" />
-                  Gallery
+                  <ImageIcon size={16} className="inline ml-2" />
+                  معرض الصور
                 </>
-              )}
+              )} */}
             </button>
           ))}
         </div>
@@ -199,19 +207,19 @@ export function AdminDashboard({ barberId }: AdminDashboardProps) {
           <AvailabilityManager barberId={barberId} />
         ) : selectedView === "timeoff" ? (
           <TimeOffManager barberId={barberId} />
-        ) : selectedView === "gallery" ? (
+        ) : /* selectedView === "gallery" ? ( // ← تم تعليق معرض الصور
           <GalleryManager barberId={barberId} />
-        ) : loading ? (
+        ) : */ loading ? (
           <div className="text-center py-12">
             <p className="text-gray-600 dark:text-gray-400">
-              Loading bookings...
+              جاري تحميل الحجوزات...
             </p>
           </div>
         ) : bookings.length === 0 ? (
           <div className="text-center py-12">
             <Calendar className="mx-auto mb-4 text-gray-400" size={48} />
             <p className="text-gray-600 dark:text-gray-400">
-              No bookings found
+              لا توجد حجوزات
             </p>
           </div>
         ) : (
@@ -238,13 +246,15 @@ export function AdminDashboard({ barberId }: AdminDashboardProps) {
                           ] || statusColors.pending
                         )}
                       >
-                        {booking.status}
+                        {statusLabels[booking.status] || booking.status}
                       </span>
                     </div>
                     <div className="flex flex-wrap gap-4 text-sm text-gray-600 dark:text-gray-400">
                       <div className="flex items-center gap-2">
                         <Calendar size={16} />
-                        {format(parseISO(booking.date), "EEEE, MMMM d, yyyy")}
+                        {format(parseISO(booking.date), "EEEE، d MMMM yyyy", {
+                          locale: ar,
+                        })}
                       </div>
                       <div className="flex items-center gap-2">
                         <Clock size={16} />
@@ -265,7 +275,7 @@ export function AdminDashboard({ barberId }: AdminDashboardProps) {
                     </div>
                     {booking.notes && (
                       <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                        Notes: {booking.notes}
+                        ملاحظات: {booking.notes}
                       </p>
                     )}
                   </div>
@@ -279,8 +289,8 @@ export function AdminDashboard({ barberId }: AdminDashboardProps) {
                         }
                         className="bg-green-500 hover:bg-green-600"
                       >
-                        <CheckCircle size={16} className="mr-1" />
-                        Confirm
+                        <CheckCircle size={16} className="ml-1" />
+                        تأكيد
                       </Button>
                     )}
                     {booking.status !== "cancelled" &&
@@ -293,8 +303,8 @@ export function AdminDashboard({ barberId }: AdminDashboardProps) {
                           }
                           className="border-red-500 text-red-500 hover:bg-red-500/10"
                         >
-                          <X size={16} className="mr-1" />
-                          Cancel
+                          <X size={16} className="ml-1" />
+                          إلغاء
                         </Button>
                       )}
                     {booking.status === "confirmed" && (
@@ -305,7 +315,7 @@ export function AdminDashboard({ barberId }: AdminDashboardProps) {
                           updateBookingStatus(booking.id, "completed")
                         }
                       >
-                        Mark Complete
+                        وضع علامة مكتمل
                       </Button>
                     )}
                   </div>

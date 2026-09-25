@@ -39,7 +39,7 @@ export function AdminSignup() {
       
       // Check if user was actually created
       if (!authData.user) {
-        throw new Error('Account creation failed. Please try again.')
+        throw new Error('فشل في إنشاء الحساب. يرجى المحاولة مرة أخرى.')
       }
       
       console.log('User created:', authData.user.id)
@@ -63,7 +63,7 @@ export function AdminSignup() {
           if (signInError) {
             // If sign in fails, redirect to login page with message
             console.warn('Auto sign-in failed, redirecting to login:', signInError.message)
-            router.push('/admin/login?message=Account created. Please sign in.')
+            router.push('/admin/login?message=تم إنشاء الحساب. يرجى تسجيل الدخول.')
             return
           }
           
@@ -95,14 +95,14 @@ export function AdminSignup() {
           router.refresh()
         } else {
           // No session, redirect to login
-          router.push('/admin/login?message=Account created. Please sign in.')
+          router.push('/admin/login?message=تم إنشاء الحساب. يرجى تسجيل الدخول.')
         }
       } else {
-        throw new Error('Account created but user data not available. Please try signing in.')
+        throw new Error('تم إنشاء الحساب ولكن بيانات المستخدم غير متاحة. يرجى محاولة تسجيل الدخول.')
       }
     } catch (err: any) {
       console.error('Signup error:', err)
-      setError(err.message || 'Failed to create account')
+      setError(err.message || 'فشل في إنشاء الحساب')
     } finally {
       setLoading(false)
     }
@@ -113,16 +113,17 @@ export function AdminSignup() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="glass rounded-2xl p-8"
+      dir="rtl"
     >
-      <h1 className="text-3xl font-bold mb-2 text-center">Create Admin Account</h1>
+      <h1 className="text-3xl font-bold mb-2 text-center">إنشاء حساب المسؤول</h1>
       <p className="text-gray-600 dark:text-gray-400 text-center mb-8">
-        Set up your barber profile
+        قم بإعداد ملفك الشخصي كحلاق
       </p>
 
       <form onSubmit={handleSignup} className="space-y-4">
         <div>
           <label htmlFor="name" className="block text-sm font-medium mb-2">
-            Name
+            الاسم
           </label>
           <input
             id="name"
@@ -131,13 +132,13 @@ export function AdminSignup() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-            placeholder="Your name"
+            placeholder="اسمك"
           />
         </div>
 
         <div>
           <label htmlFor="email" className="block text-sm font-medium mb-2">
-            Email
+            البريد الإلكتروني
           </label>
           <input
             id="email"
@@ -147,12 +148,13 @@ export function AdminSignup() {
             onChange={(e) => setEmail(e.target.value)}
             className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
             placeholder="your.email@example.com"
+            dir="ltr"
           />
         </div>
 
         <div>
           <label htmlFor="password" className="block text-sm font-medium mb-2">
-            Password
+            كلمة المرور
           </label>
           <input
             id="password"
@@ -163,6 +165,7 @@ export function AdminSignup() {
             className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
             placeholder="••••••••"
             minLength={6}
+            dir="ltr"
           />
         </div>
 
@@ -175,19 +178,19 @@ export function AdminSignup() {
         <Button type="submit" disabled={loading} className="w-full" size="lg">
           {loading ? (
             <>
-              <Loader2 className="mr-2 animate-spin" size={20} />
-              Creating account...
+              <Loader2 className="ml-2 animate-spin" size={20} />
+              جاري إنشاء الحساب...
             </>
           ) : (
-            'Create Account'
+            'إنشاء الحساب'
           )}
         </Button>
       </form>
 
       <p className="text-sm text-gray-500 dark:text-gray-500 text-center mt-6">
-        Already have an account?{' '}
+        لديك حساب بالفعل؟{' '}
         <a href="/admin/login" className="text-amber-500 hover:text-amber-600">
-          Sign in
+          تسجيل الدخول
         </a>
       </p>
     </motion.div>

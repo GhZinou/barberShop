@@ -24,7 +24,7 @@ export function TimeSlotPicker({ date }: TimeSlotPickerProps) {
   useEffect(() => {
     async function fetchSlots() {
       if (!selectedService) {
-        setError("No service selected.");
+        setError("لم يتم اختيار خدمة.");
         setLoading(false);
         return;
       }
@@ -40,7 +40,7 @@ export function TimeSlotPicker({ date }: TimeSlotPickerProps) {
           .single();
 
         if (!barber) {
-          setError("Barber profile not found.");
+          setError("لم يتم العثور على ملف الحلاق.");
           setLoading(false);
           return;
         }
@@ -56,7 +56,7 @@ export function TimeSlotPicker({ date }: TimeSlotPickerProps) {
           .single();
 
         if (!availability) {
-          setError("No availability for this day.");
+          setError("لا يوجد توفر لهذا اليوم.");
           setLoading(false);
           return;
         }
@@ -101,7 +101,7 @@ export function TimeSlotPicker({ date }: TimeSlotPickerProps) {
         setSlots(computed);
       } catch (err) {
         console.error(err);
-        setError("Failed to load availability.");
+        setError("فشل في تحميل الأوقات المتاحة.");
       } finally {
         setLoading(false);
       }
@@ -112,7 +112,7 @@ export function TimeSlotPicker({ date }: TimeSlotPickerProps) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
+      <div className="flex items-center justify-center py-12" dir="rtl">
         <Loader2 className="animate-spin text-amber-500" size={32} />
       </div>
     );
@@ -120,7 +120,7 @@ export function TimeSlotPicker({ date }: TimeSlotPickerProps) {
 
   if (error) {
     return (
-      <div className="text-center py-12">
+      <div className="text-center py-12" dir="rtl">
         <p className="text-red-500 mb-4">{error}</p>
       </div>
     );
@@ -130,17 +130,17 @@ export function TimeSlotPicker({ date }: TimeSlotPickerProps) {
 
   if (availableSlots.length === 0) {
     return (
-      <div className="text-center py-12">
-        <p className="text-xl font-semibold mb-2">Fully Booked</p>
+      <div className="text-center py-12" dir="rtl">
+        <p className="text-xl font-semibold mb-2">محجوز بالكامل</p>
         <p className="text-gray-600 dark:text-gray-400">
-          No time slots fit this service on this date.
+          لا توجد أوقات متاحة لهذه الخدمة في هذا التاريخ.
         </p>
       </div>
     );
   }
 
   return (
-    <div>
+    <div dir="rtl">
       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
         {slots.map((slot) => (
           <motion.button
@@ -163,8 +163,7 @@ export function TimeSlotPicker({ date }: TimeSlotPickerProps) {
         ))}
       </div>
       <p className="text-sm text-gray-500 dark:text-gray-400 mt-4 text-center">
-        {availableSlots.length} available slot
-        {availableSlots.length !== 1 ? "s" : ""}
+        {availableSlots.length} موعد متاح
       </p>
     </div>
   );
